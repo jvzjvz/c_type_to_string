@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -95,11 +96,33 @@ int main(int argc, char* argv[])
     get_line(source_file, line);
     assert(strcmp(line, "{") == 0);
 
+    const char* builtin_types[] = {
+        "int",
+        "float",
+        "double",
+        "char",
+        "bool",
+    };
+
     for (;;)
     {
       bool ok = get_line(source_file, line);
       if (strcmp(line, "};") == 0) break;
       printf("field: %s\n", line);
+
+      int i = 0;
+      while (!isalpha(line[i])) i++;
+
+      char* type_name_start = line + i;
+      char* type_name_end = strchr(type_name_start, ' ');
+      size_t type_name_len = type_name_end - type_name_start;
+
+      printf("len: %d\n", type_name_len);
+
+      static char type_name_copy[MAX_TYPE_NAME_LENGTH];
+      memcpy(type_name_copy, type_name_start, type_name_len);
+      type_name_copy[type_name_len] = '\0';
+      printf("type: %s\n", type_name_copy);
     }
 
     line_number++;
