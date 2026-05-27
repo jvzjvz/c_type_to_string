@@ -19,7 +19,10 @@
 #define MAX_TYPE_NAME_LENGTH 64
 
 char types[MAX_TYPES][MAX_TYPE_NAME_LENGTH];
-int types_count;
+size_t types_count;
+
+char formatted_string[512];
+size_t formatted_string_len = 0;
 
 bool get_line(FILE* file, char* line) 
 {
@@ -108,21 +111,43 @@ int main(int argc, char* argv[])
     {
       bool ok = get_line(source_file, line);
       if (strcmp(line, "};") == 0) break;
-      printf("field: %s\n", line);
+      // printf("field: %s\n", line);
 
       int i = 0;
       while (!isalpha(line[i])) i++;
 
-      char* type_name_start = line + i;
-      char* type_name_end = strchr(type_name_start, ' ');
-      size_t type_name_len = type_name_end - type_name_start;
+      // char* type_name_start = line + i;
+      // char* type_name_end = strchr(type_name_start, ' ');
+      // size_t type_name_len = type_name_end - type_name_start;
+      //
+      // printf("len: %d\n", type_name_len);
 
-      printf("len: %d\n", type_name_len);
+      // static char type_name_copy[MAX_TYPE_NAME_LENGTH];
+      // memcpy(type_name_copy, type_name_start, type_name_len);
+      // type_name_copy[type_name_len] = '\0';
 
-      static char type_name_copy[MAX_TYPE_NAME_LENGTH];
-      memcpy(type_name_copy, type_name_start, type_name_len);
-      type_name_copy[type_name_len] = '\0';
-      printf("type: %s\n", type_name_copy);
+      // removes trailing ;
+      line[strlen(line) - 1] = '\0';
+
+      char* field_ptr = line;
+
+      static char field_type[512];
+      field_ptr = strtok(field_ptr, " "); assert(field_ptr);
+      strcpy(field_type, field_ptr);
+
+      static char field_variable_name[512];
+      field_ptr = strtok(NULL, " "); assert(field_ptr);
+      strcpy(field_variable_name, field_ptr);
+
+      // printf("type: %s\n", type_name_copy);
+
+      printf("%s: %s\n", field_variable_name, field_type);
+
+      // if (strcmp(type_name_copy, "int") == 0)
+      // {
+        // memcpy(formatted_string + formatted_string_len, );
+      // }
+
     }
 
     line_number++;
