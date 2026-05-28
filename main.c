@@ -13,6 +13,15 @@
     //   int num;
     // } Foo;
 
+// Handle {
+//   index = 0,
+//   generation = 0,
+//   random = Random {
+//       x = 5,
+//       y = 10,
+//   },
+// }
+    
 
 #define MAX_LINE_LEN 128
 #define MAX_TYPES 100
@@ -111,7 +120,6 @@ int main(int argc, char* argv[])
     {
       bool ok = get_line(source_file, line);
       if (strcmp(line, "};") == 0) break;
-      // printf("field: %s\n", line);
 
       int i = 0;
       while (!isalpha(line[i])) i++;
@@ -139,14 +147,7 @@ int main(int argc, char* argv[])
       field_ptr = strtok(NULL, " "); assert(field_ptr);
       strcpy(field_variable_name, field_ptr);
 
-      // printf("type: %s\n", type_name_copy);
-
       printf("%s: %s\n", field_variable_name, field_type);
-
-      // if (strcmp(type_name_copy, "int") == 0)
-      // {
-        // memcpy(formatted_string + formatted_string_len, );
-      // }
 
     }
 
