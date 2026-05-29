@@ -98,7 +98,6 @@ void write_to_formatted_string(char* format, ...)
 void write_field_to_formatted_string(char* field_type, char* field_name)
 {
   Field_Type type = get_field_type(field_type);
-  // printf("Hasd;flkasjdfaskdl\n");
   if (type == Custom)
   {
     // ...
@@ -108,15 +107,6 @@ void write_field_to_formatted_string(char* field_type, char* field_name)
 
   const char* field_formatted_string = BUILTIN_TYPE_FORMATTED_STRINGS[type];
 
-  // size_t bytes_written = strlen(field_formatted_string);
-  // memcpy(formatted_string + formatted_string_len, field_formatted_string, 
-  //   bytes_written);
-  // formatted_string_len += bytes_written;
-  // formatted_string[formatted_string_len] = '\0';
-
-  // "%s = %d"
-  // "field_name = %d"
-
   int indentation_in_spaces = indentation_level * SPACES_PER_INDENT;
   for (int i = 0; i < indentation_in_spaces; i++)
   {
@@ -125,17 +115,6 @@ void write_field_to_formatted_string(char* field_type, char* field_name)
   formatted_string[formatted_string_len] = '\0';
 
   write_to_formatted_string(field_formatted_string, field_name);
-
-  // int remaining_buffer_size = sizeof(formatted_string) - formatted_string_len;
-  // assert(remaining_buffer_size > 0);
-  //
-  // int bytes_written = snprintf(formatted_string + formatted_string_len, 
-  //     remaining_buffer_size, field_formatted_string, field_name);
-  // assert(bytes_written > 0);
-  // formatted_string_len += bytes_written;
-  //
-  // formatted_string[formatted_string_len] = '\0';
-  // printf("formatted_string: \n%s", formatted_string);
 }
 
 bool get_line(FILE* file, char* line) 
@@ -173,13 +152,13 @@ int main(int argc, char* argv[])
     return EXIT_FAILURE;
   }
 
-  int num_types = argc - 2;
-  if (num_types <= 0)
-  {
-    fprintf(stderr, "No provided types", input_file);
-    return EXIT_FAILURE;
-  }
-  char* types_to_generate = argv[num_types];
+  // int num_types = argc - 2;
+  // if (num_types <= 0)
+  // {
+  //   fprintf(stderr, "No provided types", input_file);
+  //   return EXIT_FAILURE;
+  // }
+  // char* types_to_generate = argv[num_types];
 
   FILE* source_file = fopen(input_file, "r");
   if (!source_file)
@@ -206,9 +185,6 @@ int main(int argc, char* argv[])
     if (forward_declaration) continue;
 
     char* type_name = line + strlen(type_name_declaration_prefix);
-
-    // printf("%s\n", type_name);
-
 
     write_to_formatted_string("%s {\n", type_name);
 
@@ -240,14 +216,9 @@ int main(int argc, char* argv[])
       strcpy(field_name, field_ptr);
 
       write_field_to_formatted_string(field_type, field_name);
-      // goto quit;
-
-      // printf("%s = %%d,\n", field_name);
     }
     line_number++;
 
-    // remaining_buffer_size = sizeof(formatted_string) - formatted_string_len;
-    // snprintf(formatted_string + , remaining_buffer_size, "}\n");
     write_to_formatted_string("}\n");
 
     printf("%s", formatted_string);
@@ -281,3 +252,14 @@ int main(int argc, char* argv[])
 
   // replace that mp_to_str(type) with the string
 }
+
+mp_print(Handle, handle) -> 
+
+printf(
+    "Handle {\n"
+    "  index = %d,\n"
+    "  generation = %d,\n"
+    "}\n", 
+    handle.index, 
+    handle.generation
+)
