@@ -17,12 +17,13 @@
 //   index = 0,
 //   generation = 0,
 //   random = Random {
-//       x = 5,
-//       y = 10,
+//     x = 5,
+//     y = 10,
 //   },
 // }
     
 
+#define SPACES_PER_INDENT 2
 #define MAX_LINE_LEN 128
 #define MAX_TYPES 100
 #define MAX_TYPE_NAME_LENGTH 64
@@ -30,8 +31,74 @@
 char types[MAX_TYPES][MAX_TYPE_NAME_LENGTH];
 size_t types_count;
 
-char formatted_string[512];
+char formatted_string[1024];
 size_t formatted_string_len = 0;
+int total_indentation_in_spaces = 0;
+
+const char* builtin_types[] = {
+    "char",
+    "bool",
+    "int",
+    "float",
+    "double",
+};
+
+typedef enum Field_Type
+{
+  Char,
+  Bool,
+  Int,
+  Float,
+  Double,
+  BUILTIN_TYPE_COUNT,
+  Custom,
+} Field_Type;
+
+Field_Type get_field_type(char* field_type)
+{
+  if (strcmp(field_type, "char") == 0) return Char;
+  if (strcmp(field_type, "bool") == 0) return Bool;
+  if (strcmp(field_type, "int") == 0) return Int;
+  if (strcmp(field_type, "float") == 0) return Float;
+  if (strcmp(field_type, "double") == 0) return Double;
+  return Custom;
+};
+
+const char* BUILTIN_TYPE_FORMATTED_STRINGS[BUILTIN_TYPE_COUNT] =
+{
+  [Char] = "%s = %c,\n",
+  [Bool] = "%s = %d,\n",
+  [Int] = "%s = %d,\n",
+  [Float] = "%s = %f,\n",
+  [Double] = "%s = %f,\n",
+
+  // [Char] = "%%s = %%c,\n",
+  // [Bool] = "%%s = %%d,\n",
+  // [Int] = "%%s = %%d,\n",
+  // [Float] = "%%s = %%f,\n",
+  // [Double] = "%%s = %%f,\n",
+};
+
+void write_field_to_formatted_string(char* field_type, char* field_name)
+{
+  Field_Type type = get_field_type(field_type);
+  // printf("Hasd;flkasjdfaskdl\n");
+  if (type == Custom)
+  {
+    // ...
+    fprintf(stderr, "TODO: implement custom types");
+    exit(EXIT_FAILURE);
+  }
+
+  const char* field_formatted_string = BUILTIN_TYPE_FORMATTED_STRINGS[type];
+
+  int bytes_written = strlen(field_formatted_string) + 1;
+  memcpy(formatted_string + formatted_string_len, field_formatted_string, 
+    bytes_written);
+  formatted_string_len += bytes_written;
+  formatted_string[formatted_string_len] = '\0';
+  printf("%s\n", formatted_string);
+}
 
 bool get_line(FILE* file, char* line) 
 {
@@ -86,6 +153,7 @@ int main(int argc, char* argv[])
   char line[MAX_LINE_LEN];
   int line_number = 0;
 
+
   while (fgets(line, MAX_LINE_LEN, source_file))
   {
     if (!strstr(line, type_name_declaration_prefix)) continue;
@@ -108,31 +176,14 @@ int main(int argc, char* argv[])
     get_line(source_file, line);
     assert(strcmp(line, "{") == 0);
 
-    const char* builtin_types[] = {
-        "int",
-        "float",
-        "double",
-        "char",
-        "bool",
-    };
+
+
+    total_indentation_in_spaces += SPACES_PER_INDENT;
 
     for (;;)
     {
       bool ok = get_line(source_file, line);
       if (strcmp(line, "};") == 0) break;
-
-      int i = 0;
-      while (!isalpha(line[i])) i++;
-
-      // char* type_name_start = line + i;
-      // char* type_name_end = strchr(type_name_start, ' ');
-      // size_t type_name_len = type_name_end - type_name_start;
-      //
-      // printf("len: %d\n", type_name_len);
-
-      // static char type_name_copy[MAX_TYPE_NAME_LENGTH];
-      // memcpy(type_name_copy, type_name_start, type_name_len);
-      // type_name_copy[type_name_len] = '\0';
 
       // removes trailing ;
       line[strlen(line) - 1] = '\0';
@@ -143,16 +194,20 @@ int main(int argc, char* argv[])
       field_ptr = strtok(field_ptr, " "); assert(field_ptr);
       strcpy(field_type, field_ptr);
 
-      static char field_variable_name[512];
+      static char field_name[512];
       field_ptr = strtok(NULL, " "); assert(field_ptr);
-      strcpy(field_variable_name, field_ptr);
+      strcpy(field_name, field_ptr);
 
-      printf("%s: %s\n", field_variable_name, field_type);
+      write_field_to_formatted_string(field_type, field_name);
+      // goto quit;
 
+      // printf("%s = %%d,\n", field_name);
     }
-
     line_number++;
+    // printf("%s", formatted_string);
   }
+
+// quit:
 
   // input file
   
