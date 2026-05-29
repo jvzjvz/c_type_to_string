@@ -80,7 +80,7 @@ const char* BUILTIN_TYPE_FORMATTED_STRINGS[BUILTIN_TYPE_COUNT] =
   // [Double] = "%%s = %%f,\n",
 };
 
-void snprintf_formatted_string(char* format, ...)
+void write_to_formatted_string(char* format, ...)
 {
   va_list args;
   va_start(args, format);
@@ -89,6 +89,7 @@ void snprintf_formatted_string(char* format, ...)
   int bytes_written = vsnprintf(formatted_string + formatted_string_len, 
       remaining_buffer_size, format, args);
   formatted_string_len += bytes_written;
+  formatted_string[formatted_string_len] = '\0';
 
   va_end(args);
   assert(bytes_written > 0);
@@ -123,17 +124,17 @@ void write_field_to_formatted_string(char* field_type, char* field_name)
   }
   formatted_string[formatted_string_len] = '\0';
 
-  int remaining_buffer_size = sizeof(formatted_string) - formatted_string_len;
-  assert(remaining_buffer_size > 0);
+  write_to_formatted_string(field_formatted_string, field_name);
 
-
-
-  int bytes_written = snprintf(formatted_string + formatted_string_len, 
-      remaining_buffer_size, field_formatted_string, field_name);
-  assert(bytes_written > 0);
-  formatted_string_len += bytes_written;
-
-  formatted_string[formatted_string_len] = '\0';
+  // int remaining_buffer_size = sizeof(formatted_string) - formatted_string_len;
+  // assert(remaining_buffer_size > 0);
+  //
+  // int bytes_written = snprintf(formatted_string + formatted_string_len, 
+  //     remaining_buffer_size, field_formatted_string, field_name);
+  // assert(bytes_written > 0);
+  // formatted_string_len += bytes_written;
+  //
+  // formatted_string[formatted_string_len] = '\0';
   // printf("formatted_string: \n%s", formatted_string);
 }
 
@@ -209,7 +210,7 @@ int main(int argc, char* argv[])
     // printf("%s\n", type_name);
 
 
-    snprintf_formatted_string("%s {\n", type_name);
+    write_to_formatted_string("%s {\n", type_name);
 
     strcpy(types[types_count], type_name);
     types_count++;
@@ -247,7 +248,7 @@ int main(int argc, char* argv[])
 
     // remaining_buffer_size = sizeof(formatted_string) - formatted_string_len;
     // snprintf(formatted_string + , remaining_buffer_size, "}\n");
-    snprintf_formatted_string("}\n");
+    write_to_formatted_string("}\n");
 
     printf("%s", formatted_string);
   }
