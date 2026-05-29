@@ -33,7 +33,7 @@ size_t types_count;
 
 char formatted_string[1024];
 size_t formatted_string_len = 0;
-int total_indentation_in_spaces = 0;
+int indentation_level = 0;
 
 const char* builtin_types[] = {
     "char",
@@ -66,11 +66,11 @@ Field_Type get_field_type(char* field_type)
 
 const char* BUILTIN_TYPE_FORMATTED_STRINGS[BUILTIN_TYPE_COUNT] =
 {
-  [Char] = "%s = %c,\n",
-  [Bool] = "%s = %d,\n",
-  [Int] = "%s = %d,\n",
-  [Float] = "%s = %f,\n",
-  [Double] = "%s = %f,\n",
+  [Char] = "%s = %%c,\n",
+  [Bool] = "%s = %%d,\n",
+  [Int] = "%s = %%d,\n",
+  [Float] = "%s = %%f,\n",
+  [Double] = "%s = %%f,\n",
 
   // [Char] = "%%s = %%c,\n",
   // [Bool] = "%%s = %%d,\n",
@@ -92,12 +92,32 @@ void write_field_to_formatted_string(char* field_type, char* field_name)
 
   const char* field_formatted_string = BUILTIN_TYPE_FORMATTED_STRINGS[type];
 
-  int bytes_written = strlen(field_formatted_string) + 1;
-  memcpy(formatted_string + formatted_string_len, field_formatted_string, 
-    bytes_written);
-  formatted_string_len += bytes_written;
+  // size_t bytes_written = strlen(field_formatted_string);
+  // memcpy(formatted_string + formatted_string_len, field_formatted_string, 
+  //   bytes_written);
+  // formatted_string_len += bytes_written;
+  // formatted_string[formatted_string_len] = '\0';
+
+  // "%s = %d"
+  // "field_name = %d"
+
+  int indentation_in_spaces = indentation_level * SPACES_PER_INDENT;
+  for (int i = 0; i < indentation_in_spaces; i++)
+  {
+    formatted_string[formatted_string_len++] = ' ';
+  }
   formatted_string[formatted_string_len] = '\0';
-  printf("%s\n", formatted_string);
+
+  int remaining_buffer_size = sizeof(formatted_string) - formatted_string_len;
+  assert(remaining_buffer_size > 0);
+
+  int bytes_written = snprintf(formatted_string + formatted_string_len, 
+      remaining_buffer_size, field_formatted_string, field_name);
+  assert(bytes_written > 0);
+  formatted_string_len += bytes_written;
+
+  formatted_string[formatted_string_len] = '\0';
+  printf("formatted_string: \n%s", formatted_string);
 }
 
 bool get_line(FILE* file, char* line) 
@@ -176,9 +196,7 @@ int main(int argc, char* argv[])
     get_line(source_file, line);
     assert(strcmp(line, "{") == 0);
 
-
-
-    total_indentation_in_spaces += SPACES_PER_INDENT;
+    indentation_level++;
 
     for (;;)
     {
