@@ -22,7 +22,6 @@
 //     y = 10,
 //   },
 // }
-    
 
 #define SPACES_PER_INDENT 2
 #define MAX_LINE_LEN 128
@@ -252,6 +251,9 @@ int main(int argc, char* argv[])
 
   // replace that mp_to_str(type) with the string
 }
+
+#define mp_print(type, variable)
+  
 
 mp_print(Handle, handle) -> 
 
